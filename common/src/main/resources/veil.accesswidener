@@ -40,6 +40,7 @@ extendable method com/mojang/blaze3d/shaders/Uniform set (Lorg/joml/Matrix3f;)V
 # Deferred Renderer
 accessible method net/minecraft/client/renderer/RenderType$CompositeRenderType state ()Lnet/minecraft/client/renderer/RenderType$CompositeState;
 accessible field com/mojang/blaze3d/vertex/BufferUploader lastImmediateBuffer Lcom/mojang/blaze3d/vertex/VertexBuffer;
+accessible method net/minecraft/client/renderer/GameRenderer renderItemInHand (Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/Camera;F)V
 
 # Quasar
 accessible class net/minecraft/resources/RegistryDataLoader$Loader
@@ -66,3 +67,7 @@ accessible class net/minecraft/client/renderer/RenderStateShard$OffsetTexturingS
 accessible class net/minecraft/client/renderer/RenderStateShard$MultiTextureStateShard
 accessible class net/minecraft/client/renderer/RenderType$OutlineProperty
 accessible class net/minecraft/client/renderer/RenderType$CompositeState
+
+# RenderType Assignment
+accessible field net/minecraft/client/renderer/ItemBlockRenderTypes TYPE_BY_BLOCK Ljava/util/Map;
+accessible field net/minecraft/client/renderer/ItemBlockRenderTypes TYPE_BY_FLUID Ljava/util/Map;

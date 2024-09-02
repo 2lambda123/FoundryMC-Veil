@@ -7,7 +7,7 @@
     },
     {
       "name": "AlbedoSampler",
-      "format": "RGBA8"
+      "format": "RGBA16F"
     },
     {
       "name": "NormalSampler",
@@ -16,6 +16,10 @@
     {
       "name": "MaterialSampler",
       "format": "RG8UI"
+    },
+    {
+      "name": "HDRScaleSampler",
+      "format": "R8"
     },
     {
       "name": "VanillaLightSampler",

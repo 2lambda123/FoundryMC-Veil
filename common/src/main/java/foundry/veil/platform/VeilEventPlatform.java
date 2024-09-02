@@ -1,6 +1,9 @@
 package foundry.veil.platform;
 
 import foundry.veil.api.event.*;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.material.Fluid;
 
 import java.util.ServiceLoader;
 

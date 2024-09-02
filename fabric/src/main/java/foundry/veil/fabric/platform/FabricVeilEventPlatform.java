@@ -3,6 +3,10 @@ package foundry.veil.fabric.platform;
 import foundry.veil.api.event.*;
 import foundry.veil.fabric.event.*;
 import foundry.veil.platform.VeilEventPlatform;
+import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.material.Fluid;
 import org.jetbrains.annotations.ApiStatus;
 
 @ApiStatus.Internal

@@ -15,8 +15,17 @@
 #define CLOUD 12
 #define WORLD_BORDER 13
 
+// For the transparent pipeline, don't override HDR scale with 0
+#if defined(VEIL_HDR_SCALE) && VEIL_HDR_SCALE > 0.0
+    #define VEIL_TRANSPARENT_USE_DEFINED_HDR_SCALE() fragHDRScale = vec4(VEIL_HDR_SCALE, 0.0, 0.0, 1.0)
+#else
+    #define VEIL_HDR_SCALE 0.0
+    #define VEIL_TRANSPARENT_USE_DEFINED_HDR_SCALE()
+#endif
+#define VEIL_OPAQUE_USE_DEFINED_HDR_SCALE() fragHDRScale = vec4(VEIL_HDR_SCALE, 0.0, 0.0, 1.0)
+
 bool isBlock(uint material) {
-    return material >= BLOCK_SOLID  && material <= BLOCK_TRANSLUCENT;
+    return material >= BLOCK_SOLID && material <= BLOCK_TRANSLUCENT;
 }
 
 bool isEntity(uint material) {
