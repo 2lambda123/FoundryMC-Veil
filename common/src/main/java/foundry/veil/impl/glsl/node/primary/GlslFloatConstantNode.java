@@ -6,13 +6,11 @@ import foundry.veil.impl.glsl.node.GlslVisitor;
 
 public record GlslFloatConstantNode(float value) implements GlslConstantNode {
 
-    @Override
-    public void visit(GlslVisitor visitor) {
+  @Override
+  public void visit(GlslVisitor visitor) {}
 
-    }
-
-    @Override
-    public Object rawValue() {
-        return this.value;
-    }
+  @Override
+  public Object rawValue() {
+    return this.value;
+  }
 }

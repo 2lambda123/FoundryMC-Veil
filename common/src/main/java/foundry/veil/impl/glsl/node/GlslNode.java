@@ -5,9 +5,7 @@ import java.util.Collections;
 
 public interface GlslNode {
 
-    void visit(GlslVisitor visitor);
+  void visit(GlslVisitor visitor);
 
-    default Collection<GlslNode> children() {
-        return Collections.emptySet();
-    }
+  default Collection<GlslNode> children() { return Collections.emptySet(); }
 }

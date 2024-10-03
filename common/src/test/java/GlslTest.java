@@ -8,34 +8,38 @@ import org.junit.jupiter.api.Test;
 
 public class GlslTest {
 
-    @Test
-    void testLexer() throws GlslSyntaxException {
-        GlslLexer.Token[] tokens = GlslLexer.createTokens("float a = 4e2; // comment");
-        Assertions.assertEquals("float a = 4e2 ;\n// comment\n", this.toString(tokens));
-    }
+  @Test
+  void testLexer() throws GlslSyntaxException {
+    GlslLexer.Token[] tokens =
+        GlslLexer.createTokens("float a = 4e2; // comment");
+    Assertions.assertEquals("float a = 4e2 ;\n// comment\n",
+                            this.toString(tokens));
+  }
 
-    private String toString(GlslLexer.Token[] tokens) {
-        StringBuilder build = new StringBuilder();
-        for (GlslLexer.Token token : tokens) {
-            build.append(token.value());
-            if (token.type() == GlslLexer.TokenType.COMMENT || token.type() == GlslLexer.TokenType.SEMICOLON) {
-                build.append('\n');
-            } else {
-                build.append(' ');
-            }
-        }
-        return build.toString();
+  private String toString(GlslLexer.Token[] tokens) {
+    StringBuilder build = new StringBuilder();
+    for (GlslLexer.Token token : tokens) {
+      build.append(token.value());
+      if (token.type() == GlslLexer.TokenType.COMMENT ||
+          token.type() == GlslLexer.TokenType.SEMICOLON) {
+        build.append('\n');
+      } else {
+        build.append(' ');
+      }
     }
+    return build.toString();
+  }
 
-    @Test
-    void testParser() throws GlslSyntaxException {
-        GlslLexer.Token[] tokens = GlslLexer.createTokens("#version 330 core\nfloat a = 32.0;");
-        GlslTree tree = GlslParser.parse(tokens);
-        Assertions.assertEquals(new GlslVersion(330, true), tree.getVersion());
-    }
+  @Test
+  void testParser() throws GlslSyntaxException {
+    GlslLexer.Token[] tokens =
+        GlslLexer.createTokens("#version 330 core\nfloat a = 32.0;");
+    GlslTree tree = GlslParser.parse(tokens);
+    Assertions.assertEquals(new GlslVersion(330, true), tree.getVersion());
+  }
 
-    @Test
-    void testPrecision() throws GlslSyntaxException {
+  @Test
+  void testPrecision() throws GlslSyntaxException {
         GlslLexer.Token[] tokens = GlslLexer.createTokens("""
                 uniform highp float h1;
                 highp float h2 = 2.3 * 4.7; // operation and result are highp
@@ -49,5 +53,5 @@ public class GlslTest {
                 f(3.3); // 3.3 will be passed in at highp precision""");
         GlslTree tree = GlslParser.parse(tokens);
         System.out.println(this.toString(tokens));
-    }
+  }
 }

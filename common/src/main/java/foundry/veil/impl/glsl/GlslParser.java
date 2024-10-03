@@ -9,104 +9,109 @@ import foundry.veil.impl.glsl.node.primary.*;
 import foundry.veil.impl.glsl.type.GlslSpecifiedType;
 import foundry.veil.impl.glsl.type.GlslTypeQualifier;
 import foundry.veil.impl.glsl.type.TypeSpecifier;
-import org.jetbrains.annotations.Nullable;
-
 import java.util.ArrayList;
 import java.util.List;
+import org.jetbrains.annotations.Nullable;
 
 public final class GlslParser {
 
-    private GlslParser() {
+  private GlslParser() {}
+
+  public static GlslTree parse(GlslLexer.Token[] tokens)
+      throws GlslSyntaxException {
+    TokenReader reader = new TokenReader(tokens);
+
+    GlslVersion version = new GlslVersion(110, true);
+
+    // Try to parse version statements
+    GlslLexer.Token token = reader.peek();
+    if (token.type() == GlslLexer.TokenType.DIRECTIVE &&
+        token.value().startsWith("#version ")) {
+      reader.skip();
+      String[] parts = token.value().substring(9).split(" +", 2);
+      try {
+        int ver = Integer.parseInt(parts[0]);
+        boolean core = parts.length == 1 || parts[1].equals("core");
+        version = new GlslVersion(ver, core);
+      } catch (NumberFormatException e) {
+        throw reader.error("Invalid Version: " + token.value() + ". " +
+                           e.getMessage());
+      }
     }
 
-    public static GlslTree parse(GlslLexer.Token[] tokens) throws GlslSyntaxException {
-        TokenReader reader = new TokenReader(tokens);
-
-        GlslVersion version = new GlslVersion(110, true);
-
-        // Try to parse version statements
-        GlslLexer.Token token = reader.peek();
-        if (token.type() == GlslLexer.TokenType.DIRECTIVE && token.value().startsWith("#version ")) {
-            reader.skip();
-            String[] parts = token.value().substring(9).split(" +", 2);
-            try {
-                int ver = Integer.parseInt(parts[0]);
-                boolean core = parts.length == 1 || parts[1].equals("core");
-                version = new GlslVersion(ver, core);
-            } catch (NumberFormatException e) {
-                throw reader.error("Invalid Version: " + token.value() + ". " + e.getMessage());
-            }
-        }
-
-        reader.skipWhitespace();
-        while (reader.canRead()) {
-            GlslNode node = parseCondition(reader);
-            System.out.println(node);
-            reader.skipWhitespace();
-        }
-
-        return new GlslTree(version);
+    reader.skipWhitespace();
+    while (reader.canRead()) {
+      GlslNode node = parseCondition(reader);
+      System.out.println(node);
+      reader.skipWhitespace();
     }
 
-    private static @Nullable GlslNode parseCondition(TokenReader reader) throws GlslSyntaxException {
+    return new GlslTree(version);
+  }
+
+  private static @Nullable GlslNode parseCondition(TokenReader reader)
+      throws GlslSyntaxException {
+    if (!reader.canRead()) {
+      return null;
+    }
+    if (reader.peek().type().isType()) {
+      GlslSpecifiedType type = parseFullySpecifiedType(reader);
+      String name = reader.consume(GlslLexer.TokenType.IDENTIFIER).value();
+      reader.consume(GlslLexer.TokenType.EQUAL);
+      GlslNode value = parseInitializer(reader);
+      return new GlslNewNode(type, name, value);
+    }
+
+    return parseExpression(reader);
+  }
+
+  private static GlslNode parseInitializer(TokenReader reader)
+      throws GlslSyntaxException {
+    if (!reader.canRead()) {
+      throw reader.error("Expected initializer");
+    }
+
+    if (reader.peek().type() == GlslLexer.TokenType.LEFT_BRACE) {
+      reader.skip();
+      List<GlslNode> expressions = new ArrayList<>();
+      expressions.add(parseInitializer(reader));
+      while (reader.peek().type() == GlslLexer.TokenType.COMMA) {
+        reader.skip();
         if (!reader.canRead()) {
-            return null;
-        }
-        if (reader.peek().type().isType()) {
-            GlslSpecifiedType type = parseFullySpecifiedType(reader);
-            String name = reader.consume(GlslLexer.TokenType.IDENTIFIER).value();
-            reader.consume(GlslLexer.TokenType.EQUAL);
-            GlslNode value = parseInitializer(reader);
-            return new GlslNewNode(type, name, value);
+          throw reader.error("Expected initializer or right brace");
         }
 
-        return parseExpression(reader);
+        if (reader.peek().type() == GlslLexer.TokenType.RIGHT_BRACE) {
+          break;
+        }
+
+        expressions.add(parseInitializer(reader));
+      }
+      reader.consume(GlslLexer.TokenType.RIGHT_BRACE);
+      return new GlslInitializerNode(expressions.toArray(GlslNode[] ::new));
     }
 
-    private static GlslNode parseInitializer(TokenReader reader) throws GlslSyntaxException {
-        if (!reader.canRead()) {
-            throw reader.error("Expected initializer");
-        }
+    return parseAssignmentExpression(reader);
+  }
 
-        if (reader.peek().type() == GlslLexer.TokenType.LEFT_BRACE) {
-            reader.skip();
-            List<GlslNode> expressions = new ArrayList<>();
-            expressions.add(parseInitializer(reader));
-            while (reader.peek().type() == GlslLexer.TokenType.COMMA) {
-                reader.skip();
-                if (!reader.canRead()) {
-                    throw reader.error("Expected initializer or right brace");
-                }
+  private static GlslNode parseExpression(TokenReader reader)
+      throws GlslSyntaxException {
+    return parseAssignmentExpression(reader);
+  }
 
-                if (reader.peek().type() == GlslLexer.TokenType.RIGHT_BRACE) {
-                    break;
-                }
-
-                expressions.add(parseInitializer(reader));
-            }
-            reader.consume(GlslLexer.TokenType.RIGHT_BRACE);
-            return new GlslInitializerNode(expressions.toArray(GlslNode[]::new));
-        }
-
-        return parseAssignmentExpression(reader);
+  private static GlslNode parseAssignmentExpression(TokenReader reader)
+      throws GlslSyntaxException {
+    if (!reader.canRead()) {
+      throw reader.error("Expected assignment expression");
     }
 
-    private static GlslNode parseExpression(TokenReader reader) throws GlslSyntaxException {
-        return parseAssignmentExpression(reader);
-    }
+    GlslNode expression = parseConditionalExpression(reader);
+    if (reader.canRead() && reader.peek().type().isAssignmentOperator()) {
+      if (!(expression instanceof GlslAssignableNode left)) {
+        throw reader.error("Invalid left-hand operand");
+      }
 
-    private static GlslNode parseAssignmentExpression(TokenReader reader) throws GlslSyntaxException {
-        if (!reader.canRead()) {
-            throw reader.error("Expected assignment expression");
-        }
-
-        GlslNode expression = parseConditionalExpression(reader);
-        if (reader.canRead() && reader.peek().type().isAssignmentOperator()) {
-            if (!(expression instanceof GlslAssignableNode left)) {
-                throw reader.error("Invalid left-hand operand");
-            }
-
-            GlslAssignableNode.Assignment assignment = switch (reader.peek().type()) {
+      GlslAssignableNode.Assignment assignment = switch (reader.peek().type()) {
                 case EQUAL -> GlslAssignableNode.Assignment.EQUAL;
                 case MUL_ASSIGN -> GlslAssignableNode.Assignment.MUL_ASSIGN;
                 case DIV_ASSIGN -> GlslAssignableNode.Assignment.DIV_ASSIGN;
@@ -456,61 +461,60 @@ public final class GlslParser {
             for (GlslLexer.Token token : this.tokens) {
                 builder.append(token.value());
             }
-            return builder.toString();
-        }
+                  return builder.toString();
+                }
 
-        public boolean canRead(int length) {
-            return this.cursor + length <= this.tokens.length;
-        }
+                public boolean canRead(int length) {
+                  return this.cursor + length <= this.tokens.length;
+                }
 
-        public boolean canRead() {
-            return this.canRead(1);
-        }
+                public boolean canRead() { return this.canRead(1); }
 
-        public int getCursorOffset() {
-            int offset = 0;
-            for (int i = 0; i <= Math.min(this.cursor, this.tokens.length - 1); i++) {
-                offset += this.tokens[i].value().length();
-            }
-            return offset;
-        }
+                public int getCursorOffset() {
+                  int offset = 0;
+                  for (int i = 0;
+                       i <= Math.min(this.cursor, this.tokens.length - 1);
+                       i++) {
+                    offset += this.tokens[i].value().length();
+                  }
+                  return offset;
+                }
 
-        public @Nullable GlslLexer.Token peek() {
-            return this.peek(0);
-        }
+                public @Nullable GlslLexer.Token peek() { return this.peek(0); }
 
-        public @Nullable GlslLexer.Token peek(int amount) {
-            return this.cursor + amount < this.tokens.length ? this.tokens[this.cursor + amount] : null;
-        }
+                public @Nullable GlslLexer.Token peek(int amount) {
+                  return this.cursor + amount < this.tokens.length
+                      ? this.tokens[this.cursor + amount]
+                      : null;
+                }
 
-        public boolean canConsume(GlslLexer.TokenType token) {
-            return this.canRead() && this.peek().type() == token;
-        }
+                public boolean canConsume(GlslLexer.TokenType token) {
+                  return this.canRead() && this.peek().type() == token;
+                }
 
-        public GlslLexer.Token consume(GlslLexer.TokenType token) throws GlslSyntaxException {
-            if (!this.canRead() || this.peek().type() != token) {
-                throw this.error("Expected " + token);
-            }
-            this.cursor++;
-            return this.peek(-1);
-        }
+                public GlslLexer.Token consume(GlslLexer.TokenType token)
+                    throws GlslSyntaxException {
+                  if (!this.canRead() || this.peek().type() != token) {
+                    throw this.error("Expected " + token);
+                  }
+                  this.cursor++;
+                  return this.peek(-1);
+                }
 
-        public GlslSyntaxException error(String error) {
-            return new GlslSyntaxException(error, this.getString(), this.getCursorOffset());
-        }
+                public GlslSyntaxException error(String error) {
+                  return new GlslSyntaxException(error, this.getString(),
+                                                 this.getCursorOffset());
+                }
 
-        public void skip() {
-            this.cursor++;
-        }
+                public void skip() { this.cursor++; }
 
-        public void skip(int amount) {
-            this.cursor += amount;
-        }
+                public void skip(int amount) { this.cursor += amount; }
 
-        public void skipWhitespace() {
-            while (this.canRead() && this.peek().type() == GlslLexer.TokenType.COMMENT) {
-                this.skip();
-            }
-        }
+                public void skipWhitespace() {
+                  while (this.canRead() &&
+                         this.peek().type() == GlslLexer.TokenType.COMMENT) {
+                    this.skip();
+                  }
+                }
     }
-}
+  }
