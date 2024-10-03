@@ -67,10 +67,6 @@ dependencies {
 //    modRuntimeOnly "maven.modrinth:iris:1.6.11+1.20.1"
 //    modRuntimeOnly "maven.modrinth:replaymod:1.20.1-2.6.15"
 
-    api(include("org.antlr:antlr4-runtime:${antlr_version}"))
-    api(include("io.github.douira:glsl-transformer:${glsl_transformer_version}"))
-    api(include("io.github.douira:glsl-preprocessor:${glsl_preprocessor_version}"))
-
     api(include("gg.moonflower:molang-compiler:${molang_compiler_version}"))
 
     api(include("io.github.spair:imgui-java-binding:$imgui_version"))

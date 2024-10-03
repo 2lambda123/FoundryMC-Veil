@@ -5,13 +5,6 @@ import foundry.veil.impl.client.render.shader.modifier.InputShaderModification;
 import foundry.veil.impl.client.render.shader.modifier.ReplaceShaderModification;
 import foundry.veil.impl.client.render.shader.modifier.ShaderModification;
 import foundry.veil.impl.client.render.shader.modifier.SimpleShaderModification;
-import foundry.veil.impl.client.render.shader.transformer.VeilASTTransformer;
-import foundry.veil.impl.client.render.shader.transformer.VeilJobParameters;
-import io.github.douira.glsl_transformer.GLSLLexer;
-import io.github.douira.glsl_transformer.ast.print.PrintType;
-import io.github.douira.glsl_transformer.ast.query.RootSupplier;
-import io.github.douira.glsl_transformer.ast.transform.TransformationException;
-import io.github.douira.glsl_transformer.parser.ParsingException;
 import net.minecraft.resources.FileToIdConverter;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
@@ -43,16 +36,17 @@ public class ShaderModificationManager extends SimplePreparableReloadListener<Sh
     );
     private static final Pattern OUT_PATTERN = Pattern.compile("out ");
 
-    private final VeilASTTransformer transformer;
+    // FIXME
+//    private final VeilASTTransformer transformer;
     private Map<ResourceLocation, List<ShaderModification>> shaders;
     private Map<ShaderModification, ResourceLocation> names;
 
     public ShaderModificationManager() {
-        this.transformer = new VeilASTTransformer();
-        this.transformer.setPrintType(PrintType.INDENTED_ANNOTATED);
-        this.transformer.setRootSupplier(RootSupplier.PREFIX_UNORDERED_ED_EXACT);
-        GLSLLexer lexer = this.transformer.getLexer();
-        lexer.enableCustomDirective = true;
+//        this.transformer = new VeilASTTransformer();
+//        this.transformer.setPrintType(PrintType.INDENTED_ANNOTATED);
+//        this.transformer.setRootSupplier(RootSupplier.PREFIX_UNORDERED_ED_EXACT);
+//        GLSLLexer lexer = this.transformer.getLexer();
+//        lexer.enableCustomDirective = true;
 
         this.shaders = Collections.emptyMap();
     }
@@ -67,11 +61,11 @@ public class ShaderModificationManager extends SimplePreparableReloadListener<Sh
      * @see ShaderModification
      */
     public String applyModifiers(ResourceLocation shaderId, String source, int flags) {
-        try {
-            return this.transformer.transform(source, new VeilJobParameters(this, shaderId, flags));
-        } catch (TransformationException | ParsingException | IllegalStateException | IllegalArgumentException e) {
-            Veil.LOGGER.error("Failed to transform shader: {}", shaderId, e);
-        }
+//        try {
+//            return this.transformer.transform(source, new VeilJobParameters(this, shaderId, flags));
+//        } catch (TransformationException | ParsingException | IllegalStateException | IllegalArgumentException e) {
+//            Veil.LOGGER.error("Failed to transform shader: {}", shaderId, e);
+//        }
         return source;
     }
 

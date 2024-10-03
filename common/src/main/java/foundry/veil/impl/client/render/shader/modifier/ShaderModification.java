@@ -1,8 +1,7 @@
 package foundry.veil.impl.client.render.shader.modifier;
 
 import foundry.veil.impl.client.render.shader.transformer.VeilJobParameters;
-import io.github.douira.glsl_transformer.ast.node.TranslationUnit;
-import io.github.douira.glsl_transformer.ast.transform.ASTParser;
+import foundry.veil.impl.glsl.node.GlslTree;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.io.IOException;
@@ -26,12 +25,11 @@ public interface ShaderModification {
     /**
      * Injects this modification into the specified shader source.
      *
-     * @param parser     The parser instance
      * @param tree       The source to modify
      * @param parameters The parameters to use when injecting
      * @throws IOException If an error occurs with the format or applying the modifications
      */
-    void inject(ASTParser parser, TranslationUnit tree, VeilJobParameters parameters) throws IOException;
+    void inject(GlslTree tree, VeilJobParameters parameters) throws IOException;
 
     /**
      * @return The priority of this modification. A higher priority will be applied before a lower priority modification

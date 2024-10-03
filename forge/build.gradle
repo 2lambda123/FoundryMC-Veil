@@ -109,11 +109,6 @@ dependencies {
 
     // runtimeOnly fg.deobf("maven.modrinth:embeddium:0.3.4+mc1.20.1")
 
-    shade "org.antlr:antlr4-runtime:$antlr_version"
-    shade "io.github.douira:glsl-transformer:$glsl_transformer_version"
-    shade("io.github.douira:glsl-preprocessor:${glsl_preprocessor_version}") {
-        transitive false
-    }
     shade "gg.moonflower:molang-compiler:$molang_compiler_version"
 
     shade "io.github.spair:imgui-java-binding:$imgui_version"

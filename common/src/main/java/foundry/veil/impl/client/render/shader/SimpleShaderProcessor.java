@@ -1,7 +1,6 @@
 package foundry.veil.impl.client.render.shader;
 
 import foundry.veil.api.client.render.shader.definition.ShaderPreDefinitions;
-import foundry.veil.api.client.render.shader.processor.ShaderCPreprocessor;
 import foundry.veil.api.client.render.shader.processor.ShaderCustomProcessor;
 import foundry.veil.api.client.render.shader.processor.ShaderModifyProcessor;
 import foundry.veil.api.client.render.shader.processor.ShaderPreProcessor;
@@ -24,7 +23,7 @@ public class SimpleShaderProcessor {
     private static ShaderPreProcessor processor;
 
     public static void setup(ResourceProvider resourceProvider) {
-        processor = ShaderPreProcessor.allOf(new ShaderCPreprocessor(), new ShaderModifyProcessor(), new ShaderCustomProcessor(resourceProvider), new ShaderCPreprocessor());
+        processor = ShaderPreProcessor.allOf(new ShaderModifyProcessor(), new ShaderCustomProcessor(resourceProvider));
     }
 
     public static void free() {

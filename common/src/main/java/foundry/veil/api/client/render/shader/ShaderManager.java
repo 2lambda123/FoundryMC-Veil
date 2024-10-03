@@ -10,7 +10,6 @@ import foundry.veil.api.client.render.VeilRenderer;
 import foundry.veil.api.client.render.framebuffer.FramebufferManager;
 import foundry.veil.api.client.render.post.PostProcessingManager;
 import foundry.veil.api.client.render.shader.definition.ShaderPreDefinitions;
-import foundry.veil.api.client.render.shader.processor.ShaderCPreprocessor;
 import foundry.veil.api.client.render.shader.processor.ShaderCustomProcessor;
 import foundry.veil.api.client.render.shader.processor.ShaderModifyProcessor;
 import foundry.veil.api.client.render.shader.program.ProgramDefinition;
@@ -198,11 +197,8 @@ public class ShaderManager implements PreparableReloadListener, Closeable {
 
     private ShaderCompiler addProcessors(ShaderCompiler compiler, ResourceProvider provider) {
         return compiler.addDefaultProcessors()
-                // We need imports to keep their macros and pre-processor directives before the full shader is created
-                .addPreprocessor(new ShaderCPreprocessor(), false)
                 .addPreprocessor(new ShaderModifyProcessor(), false)
-                .addPreprocessor(new ShaderCustomProcessor(provider), false)
-                .addPreprocessor(new ShaderCPreprocessor(), false);
+                .addPreprocessor(new ShaderCustomProcessor(provider), false);
     }
 
     /**

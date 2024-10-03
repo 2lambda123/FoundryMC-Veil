@@ -1,14 +1,10 @@
 package foundry.veil.impl.client.render.shader.modifier;
 
 import foundry.veil.impl.client.render.shader.transformer.VeilJobParameters;
-import io.github.douira.glsl_transformer.ast.node.TranslationUnit;
-import io.github.douira.glsl_transformer.ast.transform.ASTInjectionPoint;
-import io.github.douira.glsl_transformer.ast.transform.ASTParser;
+import foundry.veil.impl.glsl.node.GlslTree;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.io.IOException;
-import java.util.function.Supplier;
-import java.util.regex.Matcher;
 
 @ApiStatus.Internal
 public class InputShaderModification implements ShaderModification {
@@ -22,8 +18,8 @@ public class InputShaderModification implements ShaderModification {
     }
 
     @Override
-    public void inject(ASTParser parser, TranslationUnit tree, VeilJobParameters parameters) throws IOException {
-        tree.parseAndInjectNodes(parser, ASTInjectionPoint.BEFORE_DECLARATIONS, this.input.split("\n"));
+    public void inject(GlslTree tree, VeilJobParameters parameters) throws IOException {
+//        tree.parseAndInjectNodes(parser, ASTInjectionPoint.BEFORE_DECLARATIONS, this.input.split("\n"));
     }
 
     @Override

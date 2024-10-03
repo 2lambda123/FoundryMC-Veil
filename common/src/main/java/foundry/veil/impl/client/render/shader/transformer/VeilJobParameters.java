@@ -2,14 +2,13 @@ package foundry.veil.impl.client.render.shader.transformer;
 
 import foundry.veil.api.client.render.shader.ShaderModificationManager;
 import foundry.veil.impl.client.render.shader.modifier.ShaderModification;
-import io.github.douira.glsl_transformer.ast.transform.JobParameters;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.Collection;
 
 public record VeilJobParameters(ShaderModificationManager modificationManager,
                                 ResourceLocation shaderId,
-                                int flags) implements JobParameters {
+                                int flags) {
 
     /**
      * Whether the version is required and will be applied
