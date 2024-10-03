@@ -73,6 +73,11 @@ foundry.veil.impl.client.render.shader.modifier
 foundry.veil.impl.client.render.shader.transformer
 foundry.veil.impl.client.render.wrapper
 foundry.veil.impl.compat
+foundry.veil.impl.glsl
+foundry.veil.impl.glsl.node
+foundry.veil.impl.glsl.node.postfix
+foundry.veil.impl.glsl.node.primary
+foundry.veil.impl.glsl.type
 foundry.veil.impl.quasar
 foundry.veil.impl.resource
 foundry.veil.impl.resource.action
